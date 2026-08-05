@@ -45,6 +45,7 @@ class QRIncidentInputAdapter:
     source = "qr_incident_report"
     actor = "system:qr-incident-input-adapter"
     raw_input_ref = "local://qr-incident-report/form"
+    input_adapter_id = "qr_incident_report_v1"
 
     def __init__(
         self,
@@ -151,7 +152,7 @@ class QRIncidentInputAdapter:
                     **self.trusted_metadata,
                     "data_classification": "Synthetic demo data",
                     "incident_notice": "Not a real production incident",
-                    "input_adapter": "qr_incident_report_v1",
+                    "input_adapter": self.input_adapter_id,
                 },
             )
         except InvalidEventInput as exc:

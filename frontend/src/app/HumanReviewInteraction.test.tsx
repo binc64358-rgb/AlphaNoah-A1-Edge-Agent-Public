@@ -316,6 +316,9 @@ class HumanReviewHarness implements HumanReviewDataSource {
             : "REJECTED",
       timestamp: "2026-08-01T10:35:00+08:00",
       severity: "HIGH" as const,
+      location: "B03",
+      asset_id: "B03-AIRCON",
+      description: "Cooling performance is weaker than normal.",
       responsibility: {
         id: "equipment-maintenance",
         name: "Equipment Maintenance",

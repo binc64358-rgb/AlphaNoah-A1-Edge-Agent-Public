@@ -22,6 +22,9 @@ function event(
     status,
     timestamp: "2026-07-30T10:42:00+08:00",
     severity,
+    location: "B03",
+    asset_id: "B03-AIRCON",
+    description: "Cooling performance is weaker than normal.",
     responsibility: {
       id: "maintenance_001",
       name: "Equipment Maintenance",
@@ -77,6 +80,8 @@ describe("workspace-v1 View Model adapter", () => {
         kind: "literal",
         value: "2026-07-30T10:42:00+08:00",
       },
+      { kind: "literal", value: "B03" },
+      { kind: "literal", value: "B03-AIRCON" },
       { kind: "literal", value: "Equipment Maintenance" },
     ]);
   });

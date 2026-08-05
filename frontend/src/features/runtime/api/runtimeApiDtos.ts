@@ -67,6 +67,9 @@ export interface RuntimeEventProjectionDto {
   readonly status: string;
   readonly timestamp: string;
   readonly severity: RuntimeProjectionSeverityDto;
+  readonly location: string;
+  readonly asset_id: string;
+  readonly description: string;
   readonly responsibility: RuntimeResponsibilityProjectionDto | null;
 }
 

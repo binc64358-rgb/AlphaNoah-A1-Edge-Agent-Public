@@ -42,20 +42,16 @@ export function adaptWorkspaceProjection(
       status: event.status,
       severity: event.severity,
       title: literalText(event.type),
-      detail: null,
+      detail: literalText(event.description),
       sourceLabel: event.responsibility
         ? literalText(event.responsibility.name)
         : null,
       occurredAt: event.timestamp,
       occurredLabel: null,
-      location: null,
-      assetId: null,
+      location: literalText(event.location),
+      assetId: event.asset_id,
       actionSummaryId: actionSummaryId(event.id),
-      unknownFields: [
-        "detail",
-        "location",
-        "asset_id",
-      ],
+      unknownFields: [],
     }),
   );
   const currentFocus =
@@ -118,6 +114,8 @@ function adaptEventActionSummary(
 ): ActionSummary {
   const facts = [
     literalText(event.timestamp),
+    literalText(event.location),
+    literalText(event.asset_id),
     ...(event.responsibility
       ? [literalText(event.responsibility.name)]
       : []),

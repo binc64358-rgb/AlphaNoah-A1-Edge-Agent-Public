@@ -15,6 +15,9 @@ function workspaceResponse() {
         status: "PENDING_HUMAN_REVIEW",
         timestamp: "2026-07-30T10:42:00+08:00",
         severity: "HIGH",
+        location: "B03",
+        asset_id: "B03-AIRCON",
+        description: "Cooling performance is weaker than normal.",
         responsibility: {
           id: "maintenance_001",
           name: "Equipment Maintenance",
@@ -50,6 +53,12 @@ describe("HttpWorkspaceDataSource", () => {
       id: eventId,
       rawRuntimeStatus: "PENDING_HUMAN_REVIEW",
       occurredAt: "2026-07-30T10:42:00+08:00",
+      location: { kind: "literal", value: "B03" },
+      assetId: "B03-AIRCON",
+      detail: {
+        kind: "literal",
+        value: "Cooling performance is weaker than normal.",
+      },
     });
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(fetcher).toHaveBeenCalledWith("/api/workspace", {

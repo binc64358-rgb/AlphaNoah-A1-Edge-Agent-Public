@@ -408,7 +408,11 @@ class DemoActivationTests(unittest.TestCase):
         self.assertEqual(status, 201)
         self.assertEqual(existing["status"], "NEW")
         self.assertEqual(event.status, EventStatus.NEW)
-        self.assertEqual(event.source, "qr_incident_report")
+        self.assertEqual(event.source, "web_event_report")
+        self.assertEqual(
+            event.metadata["input_adapter"],
+            "web_event_report_v1",
+        )
         self.assertEqual(
             self.golden_path.runtime.store.list_decisions(event.event_id),
             [],

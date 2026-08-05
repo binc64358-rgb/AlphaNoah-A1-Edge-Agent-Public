@@ -31,6 +31,9 @@ const event = {
   status: "PENDING_HUMAN_REVIEW",
   timestamp: "2026-07-30T10:35:00+08:00",
   severity: "HIGH",
+  location: "B03",
+  asset_id: "B03-AIRCON",
+  description: "Cooling performance is weaker than normal.",
   responsibility: {
     id: "equipment-maintenance",
     name: "Equipment Maintenance",
@@ -65,7 +68,8 @@ describe("F03-D2 Runtime Projection application integration", () => {
     );
   });
 
-  it("uses HTTP defaults and recovers existing runtime projections from GET on remount", async () => {
+  it("refreshes persisted runtime projections when navigating back to Workspace", async () => {
+    const user = userEvent.setup();
     let active = false;
     const refreshGate = deferred();
     fetchSpy.mockImplementation(
@@ -97,10 +101,13 @@ describe("F03-D2 Runtime Projection application integration", () => {
         if (url === "/api/runtime") {
           return jsonResponse(runtimeStatusPayload());
         }
+        if (url === "/api/events") {
+          return jsonResponse(active ? [event] : []);
+        }
         throw new Error(`Unexpected request: ${method} ${url}`);
       },
     );
-    const firstMount = render(<App />);
+    render(<App />);
 
     expect(
       await screen.findByText(
@@ -117,11 +124,11 @@ describe("F03-D2 Runtime Projection application integration", () => {
       }),
     ).not.toBeInTheDocument();
 
+    await user.click(screen.getByRole("link", { name: "Events" }));
+    await screen.findByRole("heading", { name: "Events" });
     active = true;
+    await user.click(screen.getByRole("link", { name: "Workspace" }));
     await act(async () => refreshGate.resolve());
-    firstMount.unmount();
-    window.history.replaceState({}, "", "/");
-    render(<App />);
 
     expect(
       await screen.findByRole("button", {
@@ -133,9 +140,9 @@ describe("F03-D2 Runtime Projection application integration", () => {
         name: "Open Noah Pulse summary",
       }),
     ).toHaveTextContent("Equipment exception requires review");
-    expect(requestCount("GET", "/api/workspace")).toBe(2);
-    expect(requestCount("GET", "/api/pulse")).toBe(2);
-    expect(requestCount("GET", "/api/digital-employees")).toBe(2);
+    expect(requestCount("GET", "/api/workspace")).toBe(3);
+    expect(requestCount("GET", "/api/pulse")).toBe(3);
+    expect(requestCount("GET", "/api/digital-employees")).toBe(3);
   });
 
   it("shows HTTP errors without falling back to any Mock projection", async () => {

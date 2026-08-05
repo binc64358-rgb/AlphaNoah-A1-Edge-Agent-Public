@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { SettingsDrawer } from "../components/preferences/SettingsDrawer";
 import { NoahPulse } from "../components/pulse/NoahPulse";
@@ -44,6 +44,8 @@ export function AppShell() {
     string | null
   >(null);
   const workspace = useWorkspace();
+  const { pathname } = useLocation();
+  const previousPathnameRef = useRef(pathname);
   const employeeResource = useOptionalDigitalEmployeeContext();
   const {
     events,
@@ -83,6 +85,14 @@ export function AppShell() {
     refreshPulse();
     employeeResource?.refresh();
   }, [employeeResource, refreshPulse, workspace]);
+
+  useEffect(() => {
+    if (previousPathnameRef.current === pathname) {
+      return;
+    }
+    previousPathnameRef.current = pathname;
+    refreshRuntimeProjections();
+  }, [pathname, refreshRuntimeProjections]);
 
   useEffect(() => {
     if (

@@ -23,6 +23,7 @@ from .bounded_location import (
 from .fault_description import is_bounded_air_conditioner_fault
 from .golden_path import (
     RestaurantAirconGoldenPath,
+    restaurant_aircon_event_metadata,
     restaurant_aircon_form_fields,
 )
 from .models import (
@@ -33,7 +34,7 @@ from .models import (
     PostReviewResult,
     Task,
 )
-from .qr_input import IncidentReportInputError
+from .qr_input import IncidentReportInputError, QRIncidentInputAdapter
 
 _EVENT_INPUT_FIELDS = frozenset({"location", "asset_type", "description"})
 _REVIEW_INPUT_FIELDS = frozenset({"action", "comment"})
@@ -86,6 +87,15 @@ class WebAdapterError(Exception):
         }
 
 
+class LocalWebIncidentInputAdapter(QRIncidentInputAdapter):
+    """Persist bounded local Web reports with accurate provenance."""
+
+    source = "web_event_report"
+    actor = "system:web-event-input-adapter"
+    raw_input_ref = "local://web-event-report/form"
+    input_adapter_id = "web_event_report_v1"
+
+
 class RestaurantAirconWebAdapter:
     """Map bounded Web payloads to existing application/runtime calls."""
 
@@ -95,6 +105,10 @@ class RestaurantAirconWebAdapter:
                 "application must be RestaurantAirconGoldenPath"
             )
         self.application = application
+        self.input_adapter = LocalWebIncidentInputAdapter(
+            application.runtime,
+            trusted_metadata=restaurant_aircon_event_metadata(),
+        )
         self._task_create_lock = RLock()
 
     def create_event(self, payload: object) -> dict[str, Any]:
@@ -124,7 +138,7 @@ class RestaurantAirconWebAdapter:
         form["asset_id"] = aircon_asset_id_for_location(values["location"])
         form["description"] = values["description"]
         try:
-            event = self.application.submit_incident(form)
+            event = self.input_adapter.submit(form)
         except IncidentReportInputError as exc:
             raise WebAdapterError(
                 WebErrorCode.INVALID_REQUEST,

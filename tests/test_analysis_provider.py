@@ -29,6 +29,8 @@ from alphanoah_a1.exceptions import (
     ProviderOutputError,
     ProviderTransportError,
 )  # noqa: E402
+from alphanoah_a1.golden_path import build_restaurant_aircon_golden_path  # noqa: E402
+from alphanoah_a1.web_adapter import RestaurantAirconWebAdapter  # noqa: E402
 from alphanoah_a1.models import (
     AnalysisResult,
     EventStatus,
@@ -636,6 +638,44 @@ class OllamaAnalysisProviderTests(unittest.TestCase):
         )
         self.assertEqual(result.severity, "HIGH")
         self.assertTrue(result.requires_human_review)
+
+
+    def test_20_web_event_prompt_uses_web_provenance_without_qr_claim(self) -> None:
+        with fake_ollama_server(
+            ollama_envelope(valid_model_output())
+        ) as (base_url, requests):
+            application = build_restaurant_aircon_golden_path(
+                self.database,
+                raw_provider=self.provider(base_url),
+            )
+            adapter = RestaurantAirconWebAdapter(application)
+            created = adapter.create_event(
+                {
+                    "location": "B03",
+                    "asset_type": "air_conditioner",
+                    "description": (
+                        "The air conditioner in B03 is cooling less effectively "
+                        "than usual and the outlet temperature appears higher "
+                        "than normal."
+                    ),
+                }
+            )
+            application.analyze(created["event_id"])
+
+        event = application.runtime.store.get_event(created["event_id"])
+        prompt = requests[0]["payload"]["prompt"]
+        self.assertEqual(event.source, "web_event_report")
+        self.assertEqual(
+            event.metadata["input_adapter"],
+            "web_event_report_v1",
+        )
+        self.assertIn('"source":"web_event_report"', prompt)
+        self.assertNotIn("qr", prompt.casefold())
+        self.assertNotIn("二维码", prompt)
+        self.assertEqual(
+            event.status,
+            EventStatus.PENDING_HUMAN_REVIEW,
+        )
 
 
 if __name__ == "__main__":

@@ -67,6 +67,9 @@ EVENT_KEYS = {
     "status",
     "timestamp",
     "severity",
+    "location",
+    "asset_id",
+    "description",
     "responsibility",
 }
 RESPONSIBILITY_KEYS = {"id", "name"}
@@ -417,6 +420,9 @@ class RuntimeProjectionApiTests(unittest.TestCase):
         self.assertEqual(projected["status"], EventStatus.NEW.value)
         self.assertEqual(projected["timestamp"], created.timestamp)
         self.assertEqual(projected["severity"], created.severity)
+        self.assertEqual(projected["location"], created.location)
+        self.assertEqual(projected["asset_id"], created.asset_id)
+        self.assertEqual(projected["description"], created.description)
         self.assertEqual(
             projected["responsibility"],
             {

@@ -77,6 +77,9 @@
         "status",
         "timestamp",
         "severity",
+        "location",
+        "asset_id",
+        "description",
         "responsibility"
       ],
       "properties": {
@@ -105,6 +108,21 @@
             "HIGH",
             "CRITICAL"
           ]
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "asset_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
         },
         "responsibility": {
           "oneOf": [

@@ -212,6 +212,16 @@ class RuntimeProjectionWebAdapter:
             "status": event.status.value,
             "timestamp": cls._public_text(event.timestamp),
             "severity": cls._public_severity(event.severity),
+            "location": cls._public_text(event.location),
+            "asset_id": cls._public_text(event.asset_id),
+            "description": cls._public_text(
+                (
+                    event.description
+                    if event.event_type == "equipment_fault_report"
+                    else "[REDACTED]"
+                ),
+                maximum_length=2_000,
+            ),
             "responsibility": (
                 {
                     "id": assignment.owner_id,

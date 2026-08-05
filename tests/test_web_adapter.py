@@ -161,7 +161,15 @@ class WebAdapterTests(unittest.TestCase):
 
         self.assertEqual(created["status"], EventStatus.NEW.value)
         self.assertEqual(persisted.status, EventStatus.NEW)
-        self.assertEqual(persisted.source, "qr_incident_report")
+        self.assertEqual(persisted.source, "web_event_report")
+        self.assertEqual(
+            persisted.metadata["input_adapter"],
+            "web_event_report_v1",
+        )
+        self.assertEqual(
+            persisted.raw_input_ref,
+            "local://web-event-report/form",
+        )
         self.assertEqual(persisted.metadata["asset_type"], "air_conditioner")
         self.assertEqual(persisted.description, "A08 空调运行异常")
 
@@ -177,6 +185,11 @@ class WebAdapterTests(unittest.TestCase):
             event_payload(description=""),
             event_payload(description="   "),
             event_payload(description="Write me a poem."),
+            event_payload(description="写一首诗"),
+            event_payload(description="今天天气怎么样"),
+            event_payload(description="帮我写报告"),
+            event_payload(description="你好"),
+            event_payload(description="吃什么"),
             event_payload(description="x" * 2_001),
             event_payload(description="空调异常\n"),
             event_payload(location=""),
@@ -210,6 +223,15 @@ class WebAdapterTests(unittest.TestCase):
             ("Workshop-A", "The air conditioner outlet temperature is unusually high."),
             ("Kitchen-2", "The air conditioner has abnormal airflow."),
             ("A01", "空调制冷差。"),
+            ("A08", "空调不制冷"),
+            ("A08", "空调出现不制冷"),
+            ("A08", "空调无法制冷"),
+            ("B03", "空调漏水"),
+            ("A01", "空调有异响"),
+            ("Workshop-A", "空调风变小了"),
+            ("Kitchen-2", "空调出风很小"),
+            ("A01", "空调开不了机"),
+            ("B03", "空调无法启动"),
             ("B03", "空调运行时有异响。"),
             ("Workshop-A", "空调室内机漏水。"),
             ("Kitchen-2", "出风温度偏高并伴有异味。"),

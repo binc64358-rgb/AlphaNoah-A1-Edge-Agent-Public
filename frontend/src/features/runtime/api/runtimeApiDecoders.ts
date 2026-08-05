@@ -392,8 +392,31 @@ function decodeEventProjection(
     status: readNonEmptyString(record, "status", path),
     timestamp,
     severity: rawSeverity as RuntimeProjectionSeverityDto,
+    location: readBoundedString(record, "location", path, 200),
+    asset_id: readBoundedString(record, "asset_id", path, 200),
+    description: readBoundedString(
+      record,
+      "description",
+      path,
+      2_000,
+    ),
     responsibility,
   };
+}
+
+function readBoundedString(
+  record: JsonRecord,
+  key: string,
+  path: string,
+  maximumLength: number,
+): string {
+  const value = readNonEmptyString(record, key, path);
+  if (value.length > maximumLength) {
+    throw contractError(
+      `${path}.${key} must contain at most ${maximumLength} characters`,
+    );
+  }
+  return value;
 }
 
 function decodePulseProjection(
