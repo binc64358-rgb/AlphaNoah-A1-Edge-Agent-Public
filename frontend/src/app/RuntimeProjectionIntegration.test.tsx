@@ -2,7 +2,6 @@ import {
   act,
   render,
   screen,
-  waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
@@ -66,7 +65,7 @@ describe("F03-D2 Runtime Projection application integration", () => {
     );
   });
 
-  it("uses the HTTP defaults, waits for projection refresh after POST, and recovers from GET on remount", async () => {
+  it("uses HTTP defaults and recovers existing runtime projections from GET on remount", async () => {
     let active = false;
     const refreshGate = deferred();
     fetchSpy.mockImplementation(
@@ -101,7 +100,6 @@ describe("F03-D2 Runtime Projection application integration", () => {
         throw new Error(`Unexpected request: ${method} ${url}`);
       },
     );
-    const user = userEvent.setup();
     const firstMount = render(<App />);
 
     expect(
@@ -113,62 +111,14 @@ describe("F03-D2 Runtime Projection application integration", () => {
     expect(requestCount("GET", "/api/pulse")).toBe(1);
     expect(requestCount("GET", "/api/digital-employees")).toBe(1);
 
-    const trigger = screen.getByRole("button", {
-      name: "Simulate equipment anomaly",
-    });
-    await user.click(trigger);
-    await waitFor(() =>
-      expect(trigger).toHaveTextContent("Employee activated"),
-    );
-    await waitFor(() => {
-      expect(requestCount("GET", "/api/workspace")).toBe(2);
-      expect(requestCount("GET", "/api/pulse")).toBe(2);
-      expect(requestCount("GET", "/api/digital-employees")).toBe(2);
-    });
-
-    // The POST response is command acknowledgement only. It must not become
-    // a second workspace or Pulse state while the GET projections are pending.
     expect(
       screen.queryByRole("button", {
-        name: "Open action context: device_not_shutdown",
+        name: "Simulate equipment anomaly",
       }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", {
-        name: "Open Noah Pulse summary",
-      }),
-    ).not.toBeInTheDocument();
-    await user.click(
-      screen.getByRole("link", { name: "Digital Employees" }),
-    );
-    expect(
-      await screen.findByText("No digital employees in this source"),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("Equipment Maintenance Agent"),
     ).not.toBeInTheDocument();
 
+    active = true;
     await act(async () => refreshGate.resolve());
-    expect(
-      await screen.findByRole("link", {
-        name: /Equipment Maintenance Agent.*Working/,
-      }),
-    ).toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("link", { name: "Workspace" }),
-    );
-    expect(
-      await screen.findByRole("button", {
-        name: "Open action context: device_not_shutdown",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("button", {
-        name: "Open Noah Pulse summary",
-      }),
-    ).toHaveTextContent("Equipment exception requires review");
-
     firstMount.unmount();
     window.history.replaceState({}, "", "/");
     render(<App />);
@@ -183,9 +133,9 @@ describe("F03-D2 Runtime Projection application integration", () => {
         name: "Open Noah Pulse summary",
       }),
     ).toHaveTextContent("Equipment exception requires review");
-    expect(requestCount("GET", "/api/workspace")).toBe(3);
-    expect(requestCount("GET", "/api/pulse")).toBe(3);
-    expect(requestCount("GET", "/api/digital-employees")).toBe(3);
+    expect(requestCount("GET", "/api/workspace")).toBe(2);
+    expect(requestCount("GET", "/api/pulse")).toBe(2);
+    expect(requestCount("GET", "/api/digital-employees")).toBe(2);
   });
 
   it("shows HTTP errors without falling back to any Mock projection", async () => {

@@ -58,8 +58,9 @@ validates the response and presents:
 - recommended actions;
 - evidence used and stated limitations.
 
-The source Web scenario accepts location `A08` and asset type
-`air_conditioner`. It is a synthetic, controlled demonstration. A structured
+The source Web scenario accepts a user-editable location that satisfies the
+validated location syntax and keeps asset type `air_conditioner`. It remains a
+synthetic, controlled equipment fault troubleshooting demonstration. A structured
 diagnosis is a preliminary assessment, not a physical inspection, confirmed
 root cause, or device-control instruction.
 
@@ -244,7 +245,7 @@ must not be presented as real AI inference.
 ### Demo steps
 
 1. Open the Events view.
-2. Keep location `A08` and enter a synthetic equipment-anomaly description.
+2. Enter a valid location and a synthetic air-conditioner anomaly description.
 3. Create the Event.
 4. Run **AI Analysis**.
 5. Review the structured issue summary, possible causes, confidence,
@@ -339,8 +340,8 @@ artifacts take precedence.
 
 ## Known Limitations
 
-- The source Web demo is deliberately constrained to `A08` and
-  `air_conditioner`.
+- The source Web demo accepts validated location identifiers and remains
+  deliberately constrained to `air_conditioner` equipment fault troubleshooting.
 - The structured result is advisory and cannot confirm a physical fault.
 - There is no production sensor input, device control, external notification
   delivery, identity system, or process sandbox.

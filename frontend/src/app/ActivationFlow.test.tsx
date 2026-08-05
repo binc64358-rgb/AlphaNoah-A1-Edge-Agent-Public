@@ -1,9 +1,7 @@
 import {
   render,
   screen,
-  waitFor,
 } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { adaptActivationSnapshot } from "../features/activation/adapter/activationAdapter";
@@ -65,9 +63,8 @@ describe("F03-D2 activation projection refresh", () => {
     );
   });
 
-  it("treats activation as a command and refreshes all three read projections", async () => {
+  it("does not expose the legacy activation command in the normal workspace", async () => {
     const harness = createProjectionHarness();
-    const user = userEvent.setup();
 
     render(
       <App
@@ -84,45 +81,19 @@ describe("F03-D2 activation projection refresh", () => {
         "No abnormal events are currently projected.",
       ),
     ).toBeInTheDocument();
-    const trigger = screen.getByRole("button", {
-      name: "Simulate equipment anomaly",
-    });
-    await user.click(trigger);
-
-    await waitFor(() =>
-      expect(trigger).toHaveTextContent("Employee activated"),
-    );
     expect(
-      await screen.findByRole("button", {
-        name: "Open action context: device_not_shutdown",
+      screen.queryByRole("button", {
+        name: "Simulate equipment anomaly",
       }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", {
-        name: "Open Noah Pulse summary",
-      }),
-    ).toHaveTextContent("Equipment exception requires review");
-
-    await user.click(
-      screen.getByRole("link", { name: "Digital Employees" }),
-    );
-    expect(
-      await screen.findByRole("link", {
-        name: /Equipment Maintenance Agent.*Working/,
-      }),
-    ).toBeInTheDocument();
-
-    expect(harness.calls).toEqual({
-      workspace: 2,
-      pulse: 2,
-      employees: 2,
-    });
+    ).not.toBeInTheDocument();
+    expect(harness.calls.activation).toBe(0);
   });
 });
 
 function createProjectionHarness() {
   let active = false;
   const calls = {
+    activation: 0,
     workspace: 0,
     pulse: 0,
     employees: 0,
@@ -176,6 +147,7 @@ function createProjectionHarness() {
   const activation: ActivationDataSource = {
     source: "mock",
     activate: async () => {
+      calls.activation += 1;
       active = true;
       return activationSnapshot;
     },

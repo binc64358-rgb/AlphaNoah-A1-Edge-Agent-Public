@@ -17,8 +17,6 @@ import { useOutletContext } from "react-router-dom";
 import { MotionWrapper } from "../components/motion/MotionWrapper";
 import { Button } from "../components/ui/Button";
 import { StatusBadge } from "../components/ui/StatusBadge";
-import { DemoActivationTrigger } from "../features/activation/components/DemoActivationTrigger";
-import { useOptionalActivation } from "../features/activation";
 import {
   useEvents,
   RuntimeStatusCard,
@@ -58,7 +56,6 @@ export function WorkspacePage() {
   const workspaceResource = useWorkspace();
   const { data: workspace } = workspaceResource;
   const { events } = useEvents();
-  const activation = useOptionalActivation();
   const { selectedEventId, openActionPanel } =
     useOutletContext<WorkspaceOutletContext>();
   const [instruction, setInstruction] = useState("");
@@ -133,16 +130,10 @@ export function WorkspacePage() {
         <RuntimeStatusCard />
       </MotionWrapper>
 
-      {activation ? (
-        <MotionWrapper preset="rise" order={2}>
-          <DemoActivationTrigger />
-        </MotionWrapper>
-      ) : null}
-
       <MotionWrapper
         className={styles.eventField}
         preset="rise"
-        order={3}
+        order={2}
       >
         <header className={styles.eventHeader}>
           <div>
