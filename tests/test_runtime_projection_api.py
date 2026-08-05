@@ -481,7 +481,7 @@ class RuntimeProjectionApiTests(unittest.TestCase):
         self.assertIsNone(employee["current_event_id"])
         self.assertEqual(
             employee["skills"],
-            [{"name": "restaurant-aircon-shutdown"}],
+            [{"name": "restaurant-aircon-troubleshooting"}],
         )
 
     def test_05_active_event_skips_a_newer_terminal_event(self) -> None:
@@ -562,7 +562,7 @@ class RuntimeProjectionApiTests(unittest.TestCase):
                 "current_event_id": event.event_id,
                 "responsibility": "Equipment Maintenance",
                 "skills": [
-                    {"name": "restaurant-aircon-shutdown"},
+                    {"name": "restaurant-aircon-troubleshooting"},
                 ],
             },
         )
@@ -622,7 +622,7 @@ class RuntimeProjectionApiTests(unittest.TestCase):
         self.assertIsNone(employee["current_event_id"])
         self.assertEqual(
             employee["skills"],
-            [{"name": "restaurant-aircon-shutdown"}],
+            [{"name": "restaurant-aircon-troubleshooting"}],
         )
         self.assertNotEqual(employee["current_event_id"], event.event_id)
 
@@ -1164,7 +1164,7 @@ class RuntimeProjectionApiTests(unittest.TestCase):
                 trace_id=event.trace_id,
                 details={
                     "model_metadata": {
-                        "skill_id": "restaurant-aircon-shutdown",
+                        "skill_id": "restaurant-aircon-troubleshooting",
                         "skill_version": "1.0-demo",
                     }
                 },

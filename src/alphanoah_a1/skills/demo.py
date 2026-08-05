@@ -1,30 +1,31 @@
-"""Two synthetic declarative Skills for Task 04.5C demonstration."""
+"""Synthetic declarative Skills for the bounded demonstration."""
 
 from ..skill import SkillDefinition, SkillStatus
 
-RESTAURANT_AIRCON_SHUTDOWN_SKILL = SkillDefinition(
-    skill_id="restaurant-aircon-shutdown",
+RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL = SkillDefinition(
+    skill_id="restaurant-aircon-troubleshooting",
     version="1.0-demo",
     status=SkillStatus.ACTIVE,
-    supported_event_types=("device_not_shutdown",),
+    supported_event_types=("equipment_fault_report",),
     supported_asset_types=("air_conditioner",),
     analysis_instructions=(
-        "Analyze the synthetic after-closing air-conditioner report. "
-        "Consider energy waste, confirm whether people remain on site, "
-        "request verification of the reported state, identify duty-staff "
-        "follow-up, and treat smart-plug or remote power-off only as a "
-        "proposal requiring authorization. Never direct an unqualified "
-        "person to perform a high-risk electrical action."
+        "Analyze the synthetic air-conditioner fault report. Consider "
+        "cooling or temperature abnormalities, noise or vibration, water "
+        "leakage or condensation, airflow or fan problems, odor or smoke, "
+        "and power or start-stop abnormalities. Recommend only safe triage "
+        "and escalation for authorized human review. Never claim a confirmed "
+        "diagnosis or direct an unqualified person to repair, open, energize, "
+        "isolate, or control equipment."
     ),
     escalation_rules=(
-        "Escalate unresolved after-closing status to authorized duty staff.",
-        "Require a human to confirm any electrical power action.",
+        "Escalate unresolved or safety-relevant faults to authorized maintenance.",
+        "Require human review before inspection, repair, or electrical action.",
     ),
     knowledge_query_hints=(
-        "aircon shutdown",
-        "closing checklist",
-        "energy exception",
-        "smart plug guidance",
+        "air conditioner troubleshooting",
+        "safe fault triage",
+        "maintenance escalation",
+        "cooling noise leak airflow odor power",
     ),
 )
 
@@ -55,11 +56,11 @@ INDUSTRIAL_EQUIPMENT_SHUTDOWN_SKILL = SkillDefinition(
 
 DEMO_SKILL_DEFINITIONS = (
     INDUSTRIAL_EQUIPMENT_SHUTDOWN_SKILL,
-    RESTAURANT_AIRCON_SHUTDOWN_SKILL,
+    RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL,
 )
 
 __all__ = [
     "DEMO_SKILL_DEFINITIONS",
     "INDUSTRIAL_EQUIPMENT_SHUTDOWN_SKILL",
-    "RESTAURANT_AIRCON_SHUTDOWN_SKILL",
+    "RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL",
 ]

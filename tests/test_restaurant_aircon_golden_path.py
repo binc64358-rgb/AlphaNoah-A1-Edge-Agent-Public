@@ -42,7 +42,7 @@ from alphanoah_a1.models import (  # noqa: E402
 from alphanoah_a1.qr_input import IncidentReportInputError  # noqa: E402
 from alphanoah_a1.skills.demo import (  # noqa: E402
     INDUSTRIAL_EQUIPMENT_SHUTDOWN_SKILL,
-    RESTAURANT_AIRCON_SHUTDOWN_SKILL,
+    RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL,
 )
 from alphanoah_a1.skills.resolver import (  # noqa: E402
     DeterministicSkillResolver,
@@ -88,7 +88,7 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
 
         self.assertEqual(first, second)
         self.assertIsNot(first, second)
-        self.assertEqual(first["event_type"], "device_not_shutdown")
+        self.assertEqual(first["event_type"], "equipment_fault_report")
         self.assertEqual(
             restaurant_aircon_event_metadata()["asset_type"],
             "air_conditioner",
@@ -102,7 +102,7 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
         self,
     ) -> None:
         provider = RestaurantAirconFakeAnalysisProvider()
-        context = RESTAURANT_AIRCON_SHUTDOWN_SKILL.to_context(
+        context = RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL.to_context(
             resolution_reason=(
                 "matched:event_type,asset_type;specificity=2"
             )
@@ -133,7 +133,7 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
         analysis = application.analyze(event.event_id)
         self.assertEqual(
             analysis.selected_skill_id,
-            "restaurant-aircon-shutdown",
+            "restaurant-aircon-troubleshooting",
         )
         self.assertEqual(analysis.validation_status, "VALID")
         self.assertEqual(
@@ -143,7 +143,7 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
         self.assertEqual(len(analysis.knowledge_matches), 1)
         self.assertEqual(
             analysis.knowledge_matches[0].document_id,
-            "synthetic_restaurant_aircon_closing_reference_v1",
+            "synthetic_restaurant_aircon_troubleshooting_reference_v1",
         )
         self.assertEqual(
             application.runtime.store.list_tasks(analysis.decision_id),
@@ -158,7 +158,7 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
         task = application.create_approved_task(analysis.decision_id)
         self.assertEqual(
             task.task_type,
-            "restaurant_aircon_shutdown_verification",
+            "restaurant_aircon_fault_inspection",
         )
         self.assertEqual(task.status, TaskStatus.CREATED)
         application.start_task(task.task_id)
@@ -296,9 +296,9 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
         self.assertNotIn("analysis_instructions", rendered)
         self.assertNotIn("Synthetic closing reference:", rendered)
         self.assertNotIn("raw model", rendered.casefold())
-        self.assertIn("restaurant-aircon-shutdown", rendered)
+        self.assertIn("restaurant-aircon-troubleshooting", rendered)
         self.assertIn(
-            "synthetic_restaurant_aircon_closing_reference",
+            "synthetic_restaurant_aircon_troubleshooting_reference",
             rendered,
         )
         self.assertIn("VALID", rendered)
@@ -345,7 +345,7 @@ class RestaurantAirconCompositionTests(unittest.TestCase):
             result = run_restaurant_aircon_demo(args)
 
         self.assertEqual(result, 0)
-        self.assertIn("restaurant-aircon-shutdown@1.0-demo", output.getvalue())
+        self.assertIn("restaurant-aircon-troubleshooting@1.0-demo", output.getvalue())
         self.assertIn("[FINAL               ] CLOSED", output.getvalue())
 
     def test_12_cli_default_cancel_keeps_human_review_pending(

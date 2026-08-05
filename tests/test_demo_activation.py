@@ -131,7 +131,7 @@ class DemoActivationTests(unittest.TestCase):
         self.assertEqual(response["projection_version"], "f03c-demo-v1")
         self.assertFalse(response["replayed"])
         self.assertEqual(event.source, DEMO_SOURCE)
-        self.assertEqual(event.event_type, "device_not_shutdown")
+        self.assertEqual(event.event_type, "equipment_fault_report")
         self.assertEqual(event.asset_id, DEMO_ASSET_ID)
         self.assertEqual(event.location, DEMO_LOCATION)
         self.assertEqual(event.status, EventStatus.PENDING_HUMAN_REVIEW)
@@ -398,7 +398,7 @@ class DemoActivationTests(unittest.TestCase):
                 {
                     "location": "A08",
                     "asset_type": "air_conditioner",
-                    "description": "Existing endpoint behavior.",
+                    "description": "The A08 air conditioner has abnormal airflow.",
                 },
             )
             event = self.golden_path.runtime.store.get_event(

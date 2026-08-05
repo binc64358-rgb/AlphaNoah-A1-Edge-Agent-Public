@@ -116,7 +116,7 @@ def event_payload(**overrides: object) -> dict[str, object]:
     values: dict[str, object] = {
         "location": "A08",
         "asset_type": "air_conditioner",
-        "description": "闭店后空调仍运行",
+        "description": "A08 空调运行异常",
     }
     values.update(overrides)
     return values
@@ -163,7 +163,7 @@ class WebAdapterTests(unittest.TestCase):
         self.assertEqual(persisted.status, EventStatus.NEW)
         self.assertEqual(persisted.source, "qr_incident_report")
         self.assertEqual(persisted.metadata["asset_type"], "air_conditioner")
-        self.assertEqual(persisted.description, "闭店后空调仍运行")
+        self.assertEqual(persisted.description, "A08 空调运行异常")
 
         queried = self.adapter.get_event(created["event_id"])
         self.assertIsNone(queried["analysis"])
@@ -175,7 +175,19 @@ class WebAdapterTests(unittest.TestCase):
     ) -> None:
         invalid_payloads = (
             event_payload(description=""),
-            event_payload(location="B09"),
+            event_payload(description="   "),
+            event_payload(description="Write me a poem."),
+            event_payload(description="x" * 2_001),
+            event_payload(description="空调异常\n"),
+            event_payload(location=""),
+            event_payload(location=" A01"),
+            event_payload(location="A01 "),
+            event_payload(location="A/01"),
+            event_payload(location="A.01"),
+            event_payload(location="A01\n"),
+            event_payload(location="x" * 65),
+            event_payload(location="-A01"),
+            event_payload(location="A01_"),
             event_payload(asset_type="industrial_machine"),
             {**event_payload(), "api_key": "synthetic-forbidden"},
             {**event_payload(), "file": "C:\\private\\evidence.txt"},
@@ -189,6 +201,40 @@ class WebAdapterTests(unittest.TestCase):
                     WebErrorCode.INVALID_REQUEST,
                 )
         self.assertEqual(self.application.runtime.store.list_events(), [])
+
+    def test_02a_natural_fault_variations_are_persisted_verbatim(self) -> None:
+        cases = (
+            ("A01", "The air conditioner is making an unusual rattling noise."),
+            ("A08", "The air conditioner is leaking water."),
+            ("B03", "Cooling performance is weaker than normal."),
+            ("Workshop-A", "The air conditioner outlet temperature is unusually high."),
+            ("Kitchen-2", "The air conditioner has abnormal airflow."),
+            ("A01", "空调制冷差。"),
+            ("B03", "空调运行时有异响。"),
+            ("Workshop-A", "空调室内机漏水。"),
+            ("Kitchen-2", "出风温度偏高并伴有异味。"),
+        )
+
+        for location, description in cases:
+            with self.subTest(location=location, description=description):
+                created = self.adapter.create_event(
+                    event_payload(location=location, description=description)
+                )
+                persisted = self.application.runtime.store.get_event(
+                    created["event_id"]
+                )
+                self.assertEqual(persisted.location, location)
+                self.assertEqual(persisted.asset_id, f"{location}-AIRCON")
+                self.assertEqual(persisted.description, description)
+                self.assertEqual(
+                    persisted.event_type, "equipment_fault_report"
+                )
+                self.assertEqual(persisted.status, EventStatus.NEW)
+
+        self.assertEqual(
+            len(self.application.runtime.store.list_events()),
+            len(cases),
+        )
 
     def test_03_analysis_query_does_not_trigger_provider(self) -> None:
         event_id = self.create_event()

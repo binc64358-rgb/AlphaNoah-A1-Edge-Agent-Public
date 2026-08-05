@@ -15,6 +15,12 @@ from .exceptions import (
     InvalidStateTransition,
     ObjectNotFoundError,
 )
+from .bounded_location import (
+    MAX_LOCATION_LENGTH,
+    aircon_asset_id_for_location,
+    is_valid_demo_location,
+)
+from .fault_description import is_bounded_air_conditioner_fault
 from .golden_path import (
     RestaurantAirconGoldenPath,
     restaurant_aircon_form_fields,
@@ -97,19 +103,25 @@ class RestaurantAirconWebAdapter:
             fields=_EVENT_INPUT_FIELDS,
             required=_EVENT_INPUT_FIELDS,
             limits={
-                "location": 200,
+                "location": MAX_LOCATION_LENGTH,
                 "asset_type": 100,
                 "description": 2_000,
             },
         )
-        if values["location"] != "A08":
-            self._invalid("location must be A08 for this demo.")
+        if not is_valid_demo_location(values["location"]):
+            self._invalid("location must be a valid identifier.")
         if values["asset_type"] != "air_conditioner":
             self._invalid(
                 "asset_type must be air_conditioner for this demo."
             )
+        if not is_bounded_air_conditioner_fault(values["description"]):
+            self._invalid(
+                "Description must report an observed air-conditioner "
+                "fault or anomaly."
+            )
         form = restaurant_aircon_form_fields()
         form["location"] = values["location"]
+        form["asset_id"] = aircon_asset_id_for_location(values["location"])
         form["description"] = values["description"]
         try:
             event = self.application.submit_incident(form)

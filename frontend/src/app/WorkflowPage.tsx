@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import styles from "./WorkflowPage.module.css";
 
@@ -18,6 +18,7 @@ async function api(path: string, body?: object): Promise<any> {
 
 export function WorkflowPage({ tasksOnly = false }: { tasksOnly?: boolean }) {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Json[]>([]);
   const [event, setEvent] = useState<Json | null>(null);
   const [analysis, setAnalysis] = useState<Json | null>(null);
@@ -53,13 +54,20 @@ export function WorkflowPage({ tasksOnly = false }: { tasksOnly?: boolean }) {
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setBusy(true); setError("");
     const data = new FormData(e.currentTarget);
-    const created = await api("/api/events", {
-      location: data.get("location"),
-      asset_type: "air_conditioner",
-      description: data.get("description"),
-    });
-    window.location.assign(`/events/${created.event_id}`);
+    try {
+      const created = await api("/api/events", {
+        location: data.get("location"),
+        asset_type: "air_conditioner",
+        description: data.get("description"),
+      });
+      navigate(`/events/${created.event_id}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Request failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!id) return (
@@ -71,8 +79,9 @@ export function WorkflowPage({ tasksOnly = false }: { tasksOnly?: boolean }) {
       {!tasksOnly && <form className={styles.card} onSubmit={create}>
         <h2>异常上报</h2>
         <label>位置<input name="location" defaultValue="A08" required /></label>
-        <label>异常描述<textarea name="description" defaultValue="闭店后冷藏区域空调持续异常运行" required /></label>
-        <button type="submit">创建 Event</button>
+        <label>异常描述<textarea name="description" placeholder="Describe the observed air-conditioner anomaly." required /></label>
+        {error && <p className={styles.error}>{error}</p>}
+        <button type="submit" disabled={busy}>创建 Event</button>
       </form>}
       <div className={styles.grid}>{events.map((item) => (
         <Link className={styles.card} key={item.event_id ?? item.id} to={`/events/${item.event_id ?? item.id}`}>

@@ -46,10 +46,10 @@ DEFAULT_RESTAURANT_KNOWLEDGE_FILE = (
     REPOSITORY_ROOT / "examples" / "skill_demo_knowledge.json"
 )
 
-SCENARIO_ID = "synthetic-restaurant-aircon-a08"
-SCENARIO_SKILL_ID = "restaurant-aircon-shutdown"
+SCENARIO_ID = "synthetic-restaurant-aircon-troubleshooting"
+SCENARIO_SKILL_ID = "restaurant-aircon-troubleshooting"
 SCENARIO_SKILL_VERSION = "1.0-demo"
-SCENARIO_EVENT_TYPE = "device_not_shutdown"
+SCENARIO_EVENT_TYPE = "equipment_fault_report"
 SCENARIO_ASSET_TYPE = "air_conditioner"
 
 DEMO_REVIEWER = "human:demo-restaurant-reviewer"
@@ -57,7 +57,7 @@ DEMO_TASK_ASSIGNEE = "demo:restaurant-duty-operator"
 DEMO_EVIDENCE_REVIEWER = "human:demo-evidence-reviewer"
 DEMO_TASK_DEADLINE = "2026-12-31T23:59:00+08:00"
 DEMO_EVIDENCE_TYPE = "synthetic_state_verification"
-DEMO_EVIDENCE_REF = "synthetic://restaurant/A08/aircon/state-after-action"
+DEMO_EVIDENCE_REF = "synthetic://restaurant/aircon/state-after-action"
 WEB_EVIDENCE_TYPE = "synthetic_text_statement"
 
 
@@ -68,10 +68,10 @@ def restaurant_aircon_form_fields() -> dict[str, str]:
         "event_type": SCENARIO_EVENT_TYPE,
         "asset_id": "A08-AIRCON",
         "location": "Restaurant-Private-Room-A08",
-        "reporter": "synthetic:closing-inspector",
+        "reporter": "synthetic:equipment-operator",
         "description": (
-            "Synthetic closing inspection: room A08 is unoccupied, "
-            "but its air conditioner is still running."
+            "Synthetic equipment report: the A08 air conditioner "
+            "is operating abnormally."
         ),
         "attachments": "",
     }
@@ -90,15 +90,15 @@ def restaurant_aircon_task_template() -> dict[str, str]:
     """Return the synthetic approved-work template for the existing Runtime."""
 
     return {
-        "task_type": "restaurant_aircon_shutdown_verification",
+        "task_type": "restaurant_aircon_fault_inspection",
         "assignee": DEMO_TASK_ASSIGNEE,
         "description": (
-            "An authorized duty operator verifies occupancy and equipment "
-            "state, then performs only the approved local shutdown procedure."
+            "An authorized maintenance operator inspects the reported "
+            "air-conditioner anomaly using approved safe procedures."
         ),
         "expected_result": (
-            "Synthetic evidence records the verified air-conditioner state "
-            "after authorized human action."
+            "Synthetic evidence records the observed air-conditioner state "
+            "after an authorized inspection."
         ),
     }
 
@@ -147,13 +147,13 @@ class RestaurantAirconFakeAnalysisProvider:
         self.last_knowledge_context = knowledge_context
         return AnalysisResult(
             detected_issue=(
-                "Synthetic room A08 air conditioner remained on after closing."
+                "Synthetic air conditioner fault requires inspection."
             ),
             decision_type="ai_assisted_incident_analysis",
             reasoning_summary=(
-                "The synthetic report indicates possible avoidable energy use. "
-                "An authorized human must verify occupancy and equipment state "
-                "before applying the reviewed local shutdown procedure."
+                "The synthetic report describes an equipment anomaly. An "
+                "authorized human must inspect the equipment and review any "
+                "recommended action before maintenance proceeds."
             ),
             evidence=[
                 "Synthetic QR incident report",

@@ -46,7 +46,7 @@ from alphanoah_a1.runtime import AlphaNoahRuntime  # noqa: E402
 from alphanoah_a1.skills.demo import (  # noqa: E402
     DEMO_SKILL_DEFINITIONS,
     INDUSTRIAL_EQUIPMENT_SHUTDOWN_SKILL,
-    RESTAURANT_AIRCON_SHUTDOWN_SKILL,
+    RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL,
 )
 from alphanoah_a1.skills.resolver import (  # noqa: E402
     DeterministicSkillResolver,
@@ -72,7 +72,7 @@ def minimal_definition(**overrides: object) -> SkillDefinition:
 
 def synthetic_event(
     *,
-    event_type: str = "device_not_shutdown",
+    event_type: str = "equipment_fault_report",
     asset_type: object = "air_conditioner",
 ) -> Event:
     metadata = {}
@@ -91,7 +91,7 @@ def synthetic_event(
             "confidence": 0.0,
             "severity": "",
             "status": "NEW",
-            "description": "Synthetic device shutdown report.",
+            "description": "Synthetic air-conditioner fault report.",
             "metadata": metadata,
         }
     )
@@ -99,15 +99,15 @@ def synthetic_event(
 
 def restaurant_definition(**overrides: object) -> SkillDefinition:
     values = {
-        "skill_id": "restaurant-aircon-shutdown",
+        "skill_id": "restaurant-aircon-troubleshooting",
         "version": "1.0-demo",
         "status": SkillStatus.ACTIVE,
         "analysis_instructions": (
-            "Analyze a synthetic restaurant air-conditioner shutdown report."
+            "Analyze a synthetic restaurant air-conditioner troubleshooting report."
         ),
-        "supported_event_types": ("device_not_shutdown",),
+        "supported_event_types": ("equipment_fault_report",),
         "supported_asset_types": ("air_conditioner",),
-        "knowledge_query_hints": ("closing checklist",),
+        "knowledge_query_hints": ("safe fault triage",),
     }
     values.update(overrides)
     return SkillDefinition(**values)
@@ -198,11 +198,11 @@ class ScenarioAwareFakeProvider(ContextCapturingProvider):
         self.calls += 1
         self.skill_contexts.append(skill_context)
         self.knowledge_contexts.append(knowledge_context)
-        if skill_context.skill_id == "restaurant-aircon-shutdown":
+        if skill_context.skill_id == "restaurant-aircon-troubleshooting":
             summary = (
-                "Synthetic restaurant closing and duty-staff verification."
+                "Synthetic restaurant air-conditioner troubleshooting and maintenance review."
             )
-            issue = "synthetic_restaurant_aircon_shutdown_exception"
+            issue = "synthetic_restaurant_aircon_fault_exception"
         else:
             summary = (
                 "Synthetic residual-energy and authorized maintenance review."
@@ -293,7 +293,7 @@ class DeterministicSkillResolverTests(unittest.TestCase):
 
         context = resolver.resolve(synthetic_event())
 
-        self.assertEqual(context.skill_id, "restaurant-aircon-shutdown")
+        self.assertEqual(context.skill_id, "restaurant-aircon-troubleshooting")
 
     def test_08_industrial_event_resolves_industrial_skill(self) -> None:
         resolver = DeterministicSkillResolver(
@@ -301,7 +301,7 @@ class DeterministicSkillResolverTests(unittest.TestCase):
         )
 
         context = resolver.resolve(
-            synthetic_event(asset_type="industrial_machine")
+            synthetic_event(event_type="device_not_shutdown", asset_type="industrial_machine")
         )
 
         self.assertEqual(
@@ -342,7 +342,7 @@ class DeterministicSkillResolverTests(unittest.TestCase):
             (
                 restaurant_definition(),
                 restaurant_definition(
-                    skill_id="restaurant-aircon-shutdown-secondary"
+                    skill_id="restaurant-aircon-troubleshooting-secondary"
                 ),
             )
         )
@@ -356,7 +356,7 @@ class DeterministicSkillResolverTests(unittest.TestCase):
 
     def test_12_definition_order_does_not_change_resolution(self) -> None:
         definitions = (restaurant_definition(), industrial_definition())
-        event = synthetic_event(asset_type="industrial_machine")
+        event = synthetic_event(event_type="device_not_shutdown", asset_type="industrial_machine")
 
         first = DeterministicSkillResolver(definitions).resolve(event)
         second = DeterministicSkillResolver(
@@ -393,7 +393,7 @@ class DeterministicSkillResolverTests(unittest.TestCase):
 
         with self.assertRaises(SkillNotFoundError):
             resolver.resolve(
-                synthetic_event(asset_type="industrial_machine")
+                synthetic_event(event_type="device_not_shutdown", asset_type="industrial_machine")
             )
 
 
@@ -428,7 +428,7 @@ class SkillAnalysisIntegrationTests(unittest.TestCase):
         return self.runtime.create_event(
             source="manual_report",
             actor="test:skill-guidance",
-            event_type="device_not_shutdown",
+            event_type="equipment_fault_report",
             asset_id="SYNTHETIC-ASSET-001",
             location="Synthetic-Site",
             description="Synthetic device remained on.",
@@ -473,7 +473,7 @@ class SkillAnalysisIntegrationTests(unittest.TestCase):
         self.assertEqual(raw_provider.calls, 1)
         self.assertEqual(
             raw_provider.skill_contexts[0].skill_id,
-            "restaurant-aircon-shutdown",
+            "restaurant-aircon-troubleshooting",
         )
         self.assertEqual(
             [item.id for item in raw_provider.knowledge_contexts[0].documents],
@@ -517,7 +517,7 @@ class SkillAnalysisIntegrationTests(unittest.TestCase):
         metadata = decision_audit.details["model_metadata"]
         self.assertEqual(
             metadata["skill_id"],
-            "restaurant-aircon-shutdown",
+            "restaurant-aircon-troubleshooting",
         )
         self.assertEqual(metadata["skill_version"], "1.0-demo")
         self.assertEqual(
@@ -650,7 +650,7 @@ class SkillAnalysisIntegrationTests(unittest.TestCase):
         self.assertLess(event_index, skill_index)
         self.assertLess(skill_index, knowledge_index)
         self.assertLess(knowledge_index, output_index)
-        self.assertIn("restaurant-aircon-shutdown", prompt)
+        self.assertIn("restaurant-aircon-troubleshooting", prompt)
         self.assertIn("synthetic_skill_guidance_reference_v1", prompt)
 
 
@@ -678,7 +678,11 @@ class DemoSkillScenarioTests(unittest.TestCase):
         return self.runtime.create_event(
             source="manual_report",
             actor="test:demo-skill-scenario",
-            event_type="device_not_shutdown",
+            event_type=(
+                "equipment_fault_report"
+                if asset_type == "air_conditioner"
+                else "device_not_shutdown"
+            ),
             asset_id=f"SYNTHETIC-{asset_type.upper()}",
             location="Synthetic-Demo-Site",
             description="Synthetic equipment remained on after operation.",
@@ -705,7 +709,7 @@ class DemoSkillScenarioTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "restaurant closing",
+            "air-conditioner troubleshooting",
             restaurant_decision.reasoning_summary,
         )
         self.assertIn(
@@ -721,7 +725,7 @@ class DemoSkillScenarioTests(unittest.TestCase):
                 item.id
                 for item in self.raw_provider.knowledge_contexts[0].documents
             ],
-            ["synthetic_restaurant_aircon_closing_reference_v1"],
+            ["synthetic_restaurant_aircon_troubleshooting_reference_v1"],
         )
         self.assertEqual(
             [
@@ -741,7 +745,7 @@ class DemoSkillScenarioTests(unittest.TestCase):
 
     def test_23_demo_skill_guidance_is_scenario_isolated(self) -> None:
         restaurant_text = json.dumps(
-            RESTAURANT_AIRCON_SHUTDOWN_SKILL.to_context(
+            RESTAURANT_AIRCON_TROUBLESHOOTING_SKILL.to_context(
                 resolution_reason=(
                     "matched:event_type,asset_type;specificity=2"
                 )
@@ -760,7 +764,7 @@ class DemoSkillScenarioTests(unittest.TestCase):
         self.assertNotIn("lockout/tagout", restaurant_text)
         self.assertNotIn("restaurant", industrial_text)
         self.assertNotIn("duty-staff", industrial_text)
-        self.assertIn("closing checklist", restaurant_text)
+        self.assertIn("safe fault triage", restaurant_text)
         self.assertIn("lockout/tagout", industrial_text)
 
     def test_24_skill_and_knowledge_audit_remain_traceable(self) -> None:
