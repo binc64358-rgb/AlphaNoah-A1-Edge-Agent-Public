@@ -1,122 +1,371 @@
 # AlphaNoah A1 Edge Agent
 
-A local-first industrial edge agent validated on AMD Ryzen AI Max+ 395.
+**An industrial edge-agent platform for local AI workflows and private
+deployment, validated on AMD Ryzen AI Max+ 395.**
 
-AlphaNoah turns an industrial incident report into a guarded, human-approved, evidence-backed, auditable work closure on a local edge device.
+AlphaNoah turns a bounded equipment problem report into structured local AI
+analysis and recommended actions. It combines an explicitly selected AI
+Provider with a deterministic Runtime, local persistence, and modular Digital
+Employee projections.
 
-This repository is a **Sanitized Public Release Snapshot** for the AMD Hackathon. It contains the validated source and local release tooling, not the private development history.
+AlphaNoah helps operators describe real-world equipment problems and receive
+structured troubleshooting analysis from a local AI agent.
 
-## What AlphaNoah is
+The AMD Radeon Hackathon demo focuses on one controlled scenario:
+**Equipment Fault Troubleshooting**.
 
-AlphaNoah combines deterministic workflow controls with selectable AI inference. Providers may analyze an incident, but they cannot bypass Human Review, Task lifecycle rules, Evidence semantics, Final Review, or the auditable `CLOSED` transition.
+```text
+Problem Report -> Local AI Analysis -> Structured Diagnosis -> Recommended Actions
+```
+
+AlphaNoah is not a chatbot, a SaaS assistant, a generic Agent Framework, or a
+cloud-first AI application. It targets customer-controlled local/private
+deployment.
+
+## Quick Links
+
+- **Demo Video:** TODO
+- **Presentation:** TODO
+- **Local Release:** [v0.1.1 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.1-amd-hackathon-final)
+
+## Why AlphaNoah?
+
+Industrial troubleshooting is often slowed by fragmented operating knowledge
+and heavy dependence on individual experience. Relevant procedures, equipment
+context, and previous observations may exist in different places, while many
+AI applications assume continuous cloud connectivity.
+
+Industrial teams need a controlled way to combine local operational context
+with AI analysis while retaining authority over data, workflow state, and the
+final decision. AlphaNoah explores that boundary with a small, auditable local
+Runtime.
+
+## Demo & Presentation
+
+The final video and presentation links will be added to **Quick Links** after
+recording and review. The local Linux release is available now.
+
+### Demo Scope
+
+The demonstration follows the four-step flow shown above. An operator reports
+an equipment problem; AlphaNoah sends bounded Event, capability, and reviewed
+knowledge context to the explicitly selected local AI Provider. The Runtime
+validates the response and presents:
+
+- a concise issue summary;
+- severity and confidence;
+- possible causes;
+- recommended actions;
+- evidence used and stated limitations.
+
+The source Web scenario accepts location `A08` and asset type
+`air_conditioner`. It is a synthetic, controlled demonstration. A structured
+diagnosis is a preliminary assessment, not a physical inspection, confirmed
+root cause, or device-control instruction.
+
+## Why Local AI on AMD?
+
+Industrial incident data can contain equipment identity, operating context,
+procedures, and internal observations. Keeping inference close to the
+operational environment can support:
+
+- privacy and enterprise data governance;
+- lower dependence on wide-area network availability;
+- customer control over Provider, model, storage, and data egress;
+- a stable local service boundary for operational workflows;
+- reduced network latency when the model runs on the local host.
+
+The Public Repository contains an operator-produced direct integration record
+for this AMD environment:
+
+| Component | Recorded value |
+|---|---|
+| Processor | AMD Ryzen AI Max+ 395 |
+| Graphics | AMD Radeon 8060S |
+| GPU target | `gfx1151` |
+| Compute stack | ROCm 7.2 |
+| Local model service | Ollama 0.20.3 |
+| Model | `qwen3.5:9b` |
+| Runtime persistence | Local SQLite |
+
+That record shows one real local Ollama response satisfying the structured
+contract, with one Decision and mandatory human review. It is a single-run
+integration record, not a performance benchmark or memory-capacity claim.
+
+## Digital Employees
+
+**Digital Employees** provide a human-understandable way to package modular
+industrial capabilities. They connect responsibility, an applicable Skill,
+and current Event state into a product view for operators.
+
+In the current release:
+
+- Digital Employees are read-only projections derived from persisted Runtime
+  facts;
+- they are not separately persisted autonomous workers or a second workflow
+  engine;
+- equipment maintenance is represented by the controlled demonstration;
+- safety inspection, quality assistance, and other roles are future
+  scenarios, not completed capabilities.
+
+## Why a Purpose-Built Runtime?
+
+AlphaNoah does not attempt to replace general Agent Frameworks. The current
+release uses a lightweight purpose-built industrial Runtime to keep the
+prototype boundary small and make the following behavior explicit:
+
+- deterministic workflow transitions;
+- bounded Provider input and output;
+- local deployment and persistence;
+- recoverable audit history;
+- a mandatory human-control boundary;
+- a low Python dependency footprint.
+
+This is not a claim that the Runtime is stronger than LangGraph, Agno, CrewAI,
+or other mature infrastructure. Such systems can be evaluated later for
+generic orchestration or integration work. AlphaNoah's intended value is the
+industrial layer: operational context, Digital Employees, enterprise workflow
+boundaries, deployment control, and auditability.
 
 ## Architecture
 
-```text
-Browser → localhost HTTP service → Runtime → Local SQLite
-                         ↓
-        Ollama / OpenAI-compatible / Fake Provider
+```mermaid
+flowchart TD
+    OP["Operator"] --> UI["React / Vite frontend"]
+    UI --> API["Loopback JSON API"]
+    API --> APP["Bounded Web adapter"]
+    APP --> RUNTIME["Deterministic AlphaNoah Runtime"]
+    APP --> SKILL["Skill resolver"]
+    APP --> KNOWLEDGE["Bounded JSON knowledge retrieval"]
+    SKILL --> PROVIDER["Provider layer / reliability and output guard"]
+    KNOWLEDGE --> PROVIDER
+    AMD["AMD Ryzen AI Max+ 395 Platform"] --> LOCAL["Local AI Runtime Environment"]
+    LOCAL --> PROVIDER
+    PROVIDER --> OLLAMA["Ollama Provider"]
+    PROVIDER --> COMPAT["OpenAI-compatible adapter"]
+    PROVIDER --> FAKE["Explicit synthetic Fake"]
+    PROVIDER --> RUNTIME
+    RUNTIME --> SQLITE["SQLite state and audit history"]
+    SQLITE --> PROJECTION["Safe Runtime projections"]
+    PROJECTION --> API
 ```
 
-The browser uses one loopback entry point for static frontend assets and `/api/*`. Provider adapters remain outside the state machine.
+The API and source-development server bind to `127.0.0.1`. The packaged Linux
+release serves the built frontend and API through one loopback port. No model
+weights are included.
 
-## Verified Golden Path
+## Capability Status
 
-```text
-Incident Report
-→ Local AI Analysis
-→ Digital Employee / Skill
-→ Knowledge
-→ Responsibility
-→ Human Review
-→ Task
-→ Evidence
-→ Final Review
-→ CLOSED
-→ Audit Timeline
-```
+Status labels in this section have strict meanings:
 
-## AMD validated platform
+- **VERIFIED** — exercised by current tests, a release artifact check, or the
+  recorded AMD integration run.
+- **IMPLEMENTED** — code exists, but a complete target-host path is not
+  verified in the Public Repository.
+- **PLANNED** — code does not exist as a current release capability.
 
-- AMD Ryzen AI Max+ 395
-- GPU: gfx1151
-- ROCm HSA 1.18
-- Ubuntu 24.04
-- Ollama 0.20.3
-- qwen3.5:9b
-- Web Ollama E2E: `CLOSED`
+### Verified
 
-This release does not claim NPU inference, universal GPU acceleration, or real vLLM host validation.
+| Capability | Current evidence |
+|---|---|
+| Deterministic Event, Decision, Human Review, Task, Evidence, final Review, and explicit state transitions | Python Runtime and regression tests |
+| SQLite persistence, restart recovery, idempotency, ordered audit history, and safe HTTP projections | Runtime, API, and security tests |
+| Explicit Provider selection, structured output guard, bounded retry/deadline, and mandatory human review | Provider and reliability tests |
+| Deterministic Skill resolution and bounded JSON knowledge retrieval | Skill and knowledge evaluation tests |
+| React frontend using HTTP Runtime data sources | 198 frontend tests and production build |
+| Local Ollama analysis on AMD Ryzen AI Max+ 395 / Radeon 8060S | Recorded AMD integration result |
+| Linux release archive and one-port static/API composition | Published checksum and packaging integration test |
 
-## Online Demo
+### Implemented
 
-See the current live demo URL in the AMD Hackathon submission page. Online demo URLs may change during final judging; no temporary tunnel URL is embedded here.
+- The OpenAI-compatible Provider adapter and vLLM-compatible discovery path
+  are present and test-harness validated. A real vLLM host is not validated.
+- A local notification outbox is persisted. No external delivery channel is
+  implemented.
+- Source and release scripts support explicit Provider configuration. The
+  source launcher supports Ollama and Fake; the packaged release also exposes
+  the OpenAI-compatible configuration path.
 
-## Local Edge Package
+### Planned
 
-Download the Linux archive and `SHA256SUMS` from this repository’s GitHub Release. Models are not bundled.
+- production authentication, authorization, and multi-user tenancy;
+- sensor, camera, and equipment-protocol adapters;
+- physical device control and safety-certified automation;
+- external notification delivery;
+- additional validated safety, quality, and equipment Digital Employees;
+- fleet deployment, process isolation, and production observability.
 
-Expected artifact:
+## Technology Stack
 
-```text
-AlphaNoah-A1-Edge-Agent-v0.1.1-linux-x86_64.tar.gz
-SHA256: 8a0e44b72c4e6e48013d1fe7819796dfc031fb15bba5d9c3dfeb626427f4a7b5
-```
+| Layer | Current technology |
+|---|---|
+| Backend | Python 3.11+, standard library |
+| Persistence | SQLite |
+| Local inference | Ollama Provider |
+| Additional Provider boundary | OpenAI-compatible HTTP adapter |
+| Frontend | React 19, TypeScript 7, Vite 8 |
+| UI libraries | Motion, Lucide React, React Router |
+| Tests | `unittest`, Vitest, Testing Library |
+| Deployment | Bash scripts; Linux x86_64 release package |
 
-## Quick Start
+Python has no third-party Runtime dependencies. Frontend dependencies are
+locked in `frontend/package-lock.json`.
+
+## Run Locally
+
+Requirements: Python 3.11+, Node.js 22.12+, npm, Bash, and `curl`. Real local
+inference also requires Ollama and an installed compatible model.
+
+### From source
 
 ```bash
+git clone https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public.git
+cd AlphaNoah-A1-Edge-Agent-Public
+./install.sh
+```
+
+For the validated local model path, confirm the exact tag and start both
+services:
+
+```bash
+ollama list
+ALPHANOAH_PROVIDER=ollama \
+ALPHANOAH_MODEL=qwen3.5:9b \
+./start.sh
+```
+
+Open `http://127.0.0.1:5173/events`. The API is available at
+`http://127.0.0.1:8090`.
+
+Use `ALPHANOAH_PROVIDER=fake ./start.sh` for the explicit deterministic mode.
+It verifies the local application path without a model or public network and
+must not be presented as real AI inference.
+
+### Demo steps
+
+1. Open the Events view.
+2. Keep location `A08` and enter a synthetic equipment-anomaly description.
+3. Create the Event.
+4. Run **AI Analysis**.
+5. Review the structured issue summary, possible causes, confidence,
+   limitations, and recommended actions.
+
+### Linux release
+
+The published release contains a built frontend, Python backend, local
+configuration flow, operations scripts, and no model weights.
+
+```bash
+sha256sum -c SHA256SUMS
+tar -xzf AlphaNoah-A1-Edge-Agent-v0.1.1-linux-x86_64.tar.gz
+cd AlphaNoah-A1-Edge-Agent-v0.1.1-linux-x86_64
 ./scripts/install.sh
 ./scripts/configure.sh
 ./scripts/start.sh
 ```
 
-Then open the local URL printed by the launcher. See [README_LOCAL.md](README_LOCAL.md), [PROVIDER_SETUP.md](PROVIDER_SETUP.md), and [DEMO_GUIDE_LOCAL.md](DEMO_GUIDE_LOCAL.md).
+Open `http://127.0.0.1:8090`. Operational commands are provided by
+`status.sh`, `healthcheck.sh`, `restart.sh`, and `stop.sh` under `scripts/`.
 
-## Provider options
+Detailed release operation and Provider configuration are documented in the
+[Local Release Guide](README_LOCAL.md) and
+[Provider Setup](PROVIDER_SETUP.md).
 
-- Ollama — SUPPORTED / HOST VALIDATED.
-- vLLM / OpenAI-Compatible — SUPPORTED VIA OPENAI-COMPATIBLE; REAL vLLM HOST NOT VALIDATED.
-- Remote API Key — SUPPORTED VIA OPENAI-COMPATIBLE; TEST HARNESS VALIDATED.
-- Fake — SUPPORTED for deterministic evaluation.
+## Validation Summary
 
-## Privacy boundary
+Fresh local validation of Public Repository commit
+`d95272b7b10b15a891ed65833a8c78cc7d0eeffd`:
 
-Provider choice determines the inference boundary:
+| Gate | Result |
+|---|---:|
+| Python tests | 218 passed |
+| Python `compileall` | PASS |
+| Release static/API integration test | 1 passed |
+| Frontend tests | 198 passed across 34 files |
+| TypeScript typecheck | PASS |
+| Vite production build | PASS |
+| Main JavaScript bundle | 546.97 kB minified; size warning only |
 
-- Ollama localhost: event data stays on the machine.
-- LAN-compatible endpoint: data may travel within the enterprise LAN.
-- Remote API: incident, knowledge, and analysis context may leave the enterprise environment.
-- Fake: deterministic simulation with no model egress.
+Release facts:
 
-See [SECURITY_AND_PRIVACY.md](SECURITY_AND_PRIVACY.md).
+- Tag: `v0.1.1-amd-hackathon-final`
+- Public tag commit: `1a32a8c071beb2ab63d0232a03f6f8baf299ca73`
+- Artifact: `AlphaNoah-A1-Edge-Agent-v0.1.1-linux-x86_64.tar.gz`
+- SHA-256: `8a0e44b72c4e6e48013d1fe7819796dfc031fb15bba5d9c3dfeb626427f4a7b5`
+- Anonymous repository, Release, and artifact access are recorded as passing
+  in the Public Repository publication status.
 
-## Validation summary
+The current repository contains no GitHub Actions workflow. The results above
+were run manually against the checked-out Public Repository.
 
-- Backend tests: 218 PASS
-- Frontend tests: 198 PASS
-- Fresh Fake E2E: `CLOSED`
-- Fresh Ollama E2E: `CLOSED`
-- Provider configuration security: PASS
-- Archive secret scan: PASS
-- Local SQLite persistence: PASS
+## Privacy and Deployment Boundary
 
-## Source provenance
+AlphaNoah targets customer-controlled local/private deployment.
 
-This public tag represents a sanitized public snapshot. Validated private development provenance:
+- Local Ollama on loopback keeps the application inference request on the
+  host.
+- A private-LAN compatible endpoint uses that enterprise network boundary.
+- A remote compatible endpoint may transmit Event, knowledge, and analysis
+  context outside the local environment.
+- Provider selection is explicit; unavailable configured Providers do not
+  silently fall back to Fake.
+- SQLite data remains local to the configured host filesystem.
+- Safe projection contracts exclude prompts, credentials, local paths, raw
+  audit details, and internal Provider responses.
 
-- Core release: `v0.1.1-amd-hackathon-final`
-- Core commit: `31d74174db86584f26be8761848486ca32359168`
-- Packaging commit: `e690066cd6cf08910eb4c851ae295d32f8557329`
+A hosted Web Demo is only a **UI and interaction reference**. It is not the
+recommended production deployment and cannot prove local/private inference.
+The current service has no production authentication or multi-user
+authorization, so loopback binding and host security are part of the present
+boundary.
 
-The public snapshot intentionally contains no private Git history.
+## Repository Structure
 
-## Known issues
+| Path | Purpose |
+|---|---|
+| `src/alphanoah_a1/` | Python backend Runtime, API, storage, Providers, Skills, knowledge, and projections |
+| `frontend/` | React/Vite interface, HTTP data sources, and frontend tests |
+| `tests/` | Backend regression, security-boundary, API, and packaging tests |
+| `scripts/` | Native Linux release install, configure, operations, health, and packaging tools |
+| `config/` | Sanitized local configuration examples |
+| `examples/` | Synthetic Event, responsibility, evidence, and knowledge fixtures |
+| `docs/` | Current evidence plus historical architecture and design records |
+| `benchmarks/` | Reserved directory; no benchmark result is shipped |
+| `RELEASE_INFO.txt` | Public release identity and archive checksum |
 
-- A real vLLM host was not validated.
-- The frontend production build has a non-blocking bundle-size warning.
-- Models must be managed by the selected inference provider.
+Historical documents explain project evolution but are not evidence that a
+capability is implemented. Current code, tests, configuration, and release
+artifacts take precedence.
 
-## License
+## Known Limitations
 
-See [LICENSE](LICENSE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+- The source Web demo is deliberately constrained to `A08` and
+  `air_conditioner`.
+- The structured result is advisory and cannot confirm a physical fault.
+- There is no production sensor input, device control, external notification
+  delivery, identity system, or process sandbox.
+- Real Ollama inference is recorded; real vLLM and remote API hosts are not
+  host-validated by this Public Release.
+- The source launcher is Bash-oriented, and the packaged native release is
+  Linux x86_64.
+- `npm audit` currently reports two high-severity dependency findings.
+- The production frontend build emits a non-blocking bundle-size warning.
+- The generic workflow page has no dedicated end-to-end browser test.
+
+## Future Direction
+
+AlphaNoah's longer-term direction is documented separately in
+[Future is Robots](docs/vision/future-is-robots.md). It describes planned
+context, sensor, vision, equipment-data, and Physical AI layers. This is future
+direction only, not a Hackathon completion claim.
+
+## Repository Notes
+
+The repository uses an all-rights-reserved placeholder `LICENSE`; no
+open-source permission is currently granted.
+
+## Submission Materials
+
+- **Demo Video:** TODO
+- **Presentation:** TODO
+- **Local Release:** [v0.1.1 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.1-amd-hackathon-final)
