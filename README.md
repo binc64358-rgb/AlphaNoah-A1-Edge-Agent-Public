@@ -26,7 +26,7 @@ deployment.
 
 - **Demo Video:** TODO
 - **Presentation:** TODO
-- **Local Release:** [v0.1.2 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.2-amd-hackathon-final)
+- **Local Release:** [v0.1.3 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.3-amd-hackathon-final)
 
 ## Why AlphaNoah?
 
@@ -258,8 +258,8 @@ configuration flow, operations scripts, and no model weights.
 
 ```bash
 sha256sum -c SHA256SUMS
-tar -xzf AlphaNoah-A1-Edge-Agent-v0.1.2-amd-hackathon-final-linux-x86_64.tar.gz
-cd AlphaNoah-A1-Edge-Agent-v0.1.2-amd-hackathon-final-linux-x86_64
+tar -xzf AlphaNoah-A1-Edge-Agent-v0.1.3-amd-hackathon-final-linux-x86_64.tar.gz
+cd AlphaNoah-A1-Edge-Agent-v0.1.3-amd-hackathon-final-linux-x86_64
 ./scripts/install.sh
 ./scripts/configure.sh
 ./scripts/start.sh
@@ -289,10 +289,10 @@ Fresh local validation of Public Repository commit
 
 Release facts:
 
-- Tag: `v0.1.2-amd-hackathon-final`
-- Public tag commit: `459fe164df622bc96975165c0d37c8ff06100536`
-- Artifact: `AlphaNoah-A1-Edge-Agent-v0.1.2-amd-hackathon-final-linux-x86_64.tar.gz`
-- SHA-256: `29688b49124c5ec9f49b6210d713e5f00065505eab7323fdc16d6dd39708bc01`
+- Tag: `v0.1.3-amd-hackathon-final`
+- Public tag commit: `8301346acdfaaa8e7632950303d4546e7108f3ad`
+- Artifact: `AlphaNoah-A1-Edge-Agent-v0.1.3-amd-hackathon-final-linux-x86_64.tar.gz`
+- SHA-256: `d25e1d2b1033c56959537892095c197cb5c9c1584272a8bc80155df907213534`
 - Anonymous repository, Release, and artifact access are recorded as passing
   in the Public Repository publication status.
 
@@ -369,4 +369,4 @@ open-source permission is currently granted.
 
 - **Demo Video:** TODO
 - **Presentation:** TODO
-- **Local Release:** [v0.1.2 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.2-amd-hackathon-final)
+- **Local Release:** [v0.1.3 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.3-amd-hackathon-final)
