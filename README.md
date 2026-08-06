@@ -22,11 +22,13 @@ AlphaNoah is not a chatbot, a SaaS assistant, a generic Agent Framework, or a
 cloud-first AI application. It targets customer-controlled local/private
 deployment.
 
-## Quick Links
+## Hackathon Submission Materials
 
-- **Demo Video:** TODO
-- **Presentation:** TODO
-- **Local Release:** [v0.1.3 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.3-amd-hackathon-final)
+- **Project Specification Document:** [PROJECT_SPECIFICATION.md](PROJECT_SPECIFICATION.md)
+- **Presentation:** [AlphaNoah A1 AMD Hackathon Presentation](docs/AlphaNoah_A1_AMD_Hackathon_Presentation.pptx)
+- **Demo Video:** [AlphaNoah A1 Edge Agent Demo](docs/AlphaNoah_A1_AMD_Hackathon_Demo.mp4)
+- **Source Repository:** [AlphaNoah A1 Edge Agent Public](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public)
+- **Release Artifact:** [v0.1.3 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.3-amd-hackathon-final)
 
 ## Why AlphaNoah?
 
@@ -40,10 +42,12 @@ with AI analysis while retaining authority over data, workflow state, and the
 final decision. AlphaNoah explores that boundary with a small, auditable local
 Runtime.
 
-## Demo & Presentation
+## Demo Video
 
-The final video and presentation links will be added to **Quick Links** after
-recording and review. The local Linux release is available now.
+**Demo Video:** [Watch the final AlphaNoah A1 Edge Agent demonstration](docs/AlphaNoah_A1_AMD_Hackathon_Demo.mp4)
+
+**Description:** A complete demonstration of AlphaNoah A1 Edge Agent: Problem
+Report -> Local AI Analysis -> Structured Diagnosis -> Human Review.
 
 ### Demo Scope
 
@@ -364,9 +368,3 @@ direction only, not a Hackathon completion claim.
 
 The repository uses an all-rights-reserved placeholder `LICENSE`; no
 open-source permission is currently granted.
-
-## Submission Materials
-
-- **Demo Video:** TODO
-- **Presentation:** TODO
-- **Local Release:** [v0.1.3 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.3-amd-hackathon-final)
