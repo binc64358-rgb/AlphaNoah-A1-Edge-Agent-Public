@@ -26,7 +26,7 @@ deployment.
 
 - **Project Specification Document:** [PROJECT_SPECIFICATION.md](PROJECT_SPECIFICATION.md)
 - **Presentation:** [AlphaNoah A1 AMD Hackathon Presentation](docs/AlphaNoah_A1_AMD_Hackathon_Presentation.pptx)
-- **Demo Video:** [AlphaNoah A1 Edge Agent Demo](docs/AlphaNoah_A1_AMD_Hackathon_Demo.mp4)
+- **Demo Video:** [Play or download the AlphaNoah A1 Edge Agent Demo (MP4)](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/raw/refs/heads/main/docs/AlphaNoah_A1_AMD_Hackathon_Demo.mp4)
 - **Source Repository:** [AlphaNoah A1 Edge Agent Public](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public)
 - **Release Artifact:** [v0.1.3 AMD Hackathon Final](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/releases/tag/v0.1.3-amd-hackathon-final)
 
@@ -44,7 +44,10 @@ Runtime.
 
 ## Demo Video
 
-**Demo Video:** [Watch the final AlphaNoah A1 Edge Agent demonstration](docs/AlphaNoah_A1_AMD_Hackathon_Demo.mp4)
+**Demo Video:** [Play or download the final AlphaNoah A1 Edge Agent demonstration (MP4)](https://github.com/binc64358-rgb/AlphaNoah-A1-Edge-Agent-Public/raw/refs/heads/main/docs/AlphaNoah_A1_AMD_Hackathon_Demo.mp4)
+
+This direct link bypasses GitHub's large-file preview page. Depending on the
+browser, the 20 MB MP4 will either play directly or download for local playback.
 
 **Description:** A complete demonstration of AlphaNoah A1 Edge Agent: Problem
 Report -> Local AI Analysis -> Structured Diagnosis -> Human Review.
